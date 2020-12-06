@@ -1,0 +1,115 @@
+﻿@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@model X.PagedList.IPagedList<WordCounter.Model.WordModel>
+
+
+
+@{
+    ViewBag.Title = "Read text file";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style type="text/css">
+    .localBtn {
+        background-color: #007bff;
+        border-style: inherit;
+        border-color: white;
+        color: white;
+        border-radius: 20px;
+        width: 120px;
+        height: 50px;
+    }
+    .sortStyle {
+        float: right;
+    }
+    .exception {
+        color: red;
+    }
+</style>
+
+
+
+@using (Html.BeginForm("Upload", "UploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <table style="padding-top:10px">
+        <tr>
+            <td colspan="2">
+                <h3 style="color: #007bff">Read text file and display the word frequency</h3>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 350px;">
+                <input type="file" name="postedFile" />
+            </td>
+            <td>
+                <input type="submit" value="Read Text" class="localBtn" />
+            </td>
+
+        </tr>
+    </table>
+
+}
+<p class="exception">@ViewBag.Message</p>
+<hr />
+@if (ViewBag.Message == null)
+{
+    if (Model != null)
+    {
+    <div>
+        @Html.PagedListPager((IPagedList)Model, page => Url.Action("DisplayData", "UploadFile", new { page, sortOrder = ViewBag.SortOrder }),
+             new X.PagedList.Mvc.Core.Common.PagedListRenderOptions
+             {
+                 LiElementClasses = new string[] { "page-item" },
+                 PageClasses = new string[] { "page-link" },
+
+             })
+    </div>
+    <h6>
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        <span class="sortStyle">
+            @(Html.DropDownList("sortOrder",
+                         new SelectList(new string[] { "FrequencyASC", "FrequencyDESC", "WordASC", "WordDESC" }),
+                         "Choose sort order", /*ViewBag.SortOrder*/
+                         new
+                         {
+                             onchange = "document.location.href = '/UploadFile/DisplayData?sortOrder=' + this.options[this.selectedIndex].value;",
+                             value = (ViewBag.SortOrder != null ? ViewBag.SortOrder : "FrequencyDESC")
+                         }))
+        </span>
+    </h6>
+
+
+    <table class="table" style="padding-top:10px">
+
+        <thead class="thead-light">
+
+            <tr>
+                <th scope="col">Word</th>
+                <th scope="col">Frequency</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Word</td>
+                    <td>@item.Frequency</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+        //}
+    <div>
+        @Html.PagedListPager((IPagedList)Model, page => Url.Action("DisplayData", "UploadFile", new { page, sortOrder = ViewBag.SortOrder }),
+             new X.PagedList.Mvc.Core.Common.PagedListRenderOptions
+             {
+                 LiElementClasses = new string[] { "page-item" },
+                 PageClasses = new string[] { "page-link" },
+
+             })
+    </div>
+    }
+}
+
